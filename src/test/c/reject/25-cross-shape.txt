@@ -1,0 +1,4 @@
+vector x[2]>=0
+vector y[2]>=0
+min sum(cross(x,y))
+print(x)

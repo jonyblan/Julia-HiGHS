@@ -1,0 +1,4 @@
+vector x[3]>=0
+vector y[3]<=2
+min dot(x,y)
+print(x)
