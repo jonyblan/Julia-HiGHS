@@ -1,0 +1,4 @@
+vector v[3]>=0
+a<=5
+max v+a
+print(a)

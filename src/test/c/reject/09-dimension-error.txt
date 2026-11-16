@@ -1,0 +1,4 @@
+vector v[2]>=0
+vector w[3]>=0
+min dot(v,w)
+print(v)

@@ -1,0 +1,6 @@
+# initial
+a>=0
+/* this is
+ a multiline comment */
+max a
+print(a) # output

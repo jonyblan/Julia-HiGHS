@@ -1,0 +1,5 @@
+int units>=0
+units<=9
+binary selected
+max units+selected
+print(selected)

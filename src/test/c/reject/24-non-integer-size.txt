@@ -1,0 +1,3 @@
+vector v[2.5]>=0
+min sum(v)
+print(v)
