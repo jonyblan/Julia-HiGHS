@@ -1,0 +1,4 @@
+vector u[3]>=0
+vector v[3]>=0
+max cross(u,v)[1]
+print(u[1])

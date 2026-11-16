@@ -13,7 +13,8 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
 	# Compiles the parser with Bison, generating counter-examples in case S/R or R/R conflicts exists.
 	add_custom_command(
 		OUTPUT ../src/main/c/frontend/syntactic-analysis/BisonParser.c ../src/main/c/frontend/syntactic-analysis/BisonParser.h
-		COMMAND ../src/main/bash/bison.sh
+		COMMAND bash ../src/main/bash/bison.sh
+		DEPENDS ../src/main/c/frontend/syntactic-analysis/BisonGrammar.y
 	)
 
 	# Options for GCC.
@@ -26,15 +27,15 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
 	# Compiles the scanner with Flex.
 	add_custom_command(
 		OUTPUT ../src/main/c/frontend/lexical-analysis/FlexScanner.c ../src/main/c/frontend/lexical-analysis/FlexScanner.h
-		COMMAND ../src/main/bash/flex.sh
-		DEPENDS ../src/main/c/frontend/syntactic-analysis/BisonParser.c ../src/main/c/frontend/syntactic-analysis/BisonParser.h
+		COMMAND bash ../src/main/bash/flex.sh
+		DEPENDS ../src/main/c/frontend/lexical-analysis/FlexPatterns.l ../src/main/c/frontend/syntactic-analysis/BisonParser.c ../src/main/c/frontend/syntactic-analysis/BisonParser.h
 	)
 
 	# Defines the entry-point of the application, and the source-codes (*.c extension).
 	# The header files (*.h extension), are automatically included from the source-codes.
 	add_executable(Flex-Bison-Compiler
 		src/main/c/backend/code-generation/Generator.c
-		src/main/c/backend/domain-specific/Calculator.c
+		src/main/c/backend/semantic-analysis/SemanticAnalyzer.c
 		src/main/c/EntryPoint.c
 		src/main/c/frontend/Frontend.c
 		src/main/c/frontend/lexical-analysis/FlexActions.c
@@ -50,7 +51,7 @@ if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
 	)
 
 	# Link final project and libraries.
-	target_link_libraries(Flex-Bison-Compiler)
+	target_link_libraries(Flex-Bison-Compiler m)
 else ()
 	message(NOTICE "The C compiler is unknown.")
 endif ()

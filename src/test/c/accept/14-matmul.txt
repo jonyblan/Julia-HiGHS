@@ -1,0 +1,4 @@
+matrix A[2,2]>=0
+matrix B[2,2]>=0
+min trace(matmul(A,B))
+print(A[1,1])

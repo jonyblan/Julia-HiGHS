@@ -1,0 +1,5 @@
+const cap = 10.5
+float price >= -2.5
+price <= cap
+max price + cap / 2
+print(price)

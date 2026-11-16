@@ -1,5 +1,5 @@
 #include "backend/code-generation/Generator.h"
-#include "backend/domain-specific/Calculator.h"
+#include "backend/semantic-analysis/SemanticAnalyzer.h"
 #include "frontend/Frontend.h"
 #include "frontend/lexical-analysis/FlexActions.h"
 #include "frontend/syntactic-analysis/BisonActions.h"
@@ -7,51 +7,47 @@
 #include "support/type/CompilationStatus.h"
 #include "support/type/CompilerState.h"
 #include "support/type/ModuleDestructor.h"
+#include <stdio.h>
 
 /**
  * The main entry-point of the entire application. If you use "strtok" to
  * parse anything inside this project instead of using Flex and Bison, I will
  * find you, and I will kill you (Bryan Mills; "Taken", 2008).
  */
-const int main(const int length, const char ** arguments) {
+int main(int length, const char **arguments) {
+	/* Para no dejar resultados viejos si falla el parser. */
+	remove("output/program.txt");
+	remove("output/program.jl");
+	remove("output/program.ipynb");
 	LexicalAnalyzer * lexicalAnalyzer = createLexicalAnalyzer();
 	Logger * logger = createLogger("EntryPoint");
 	for (int k = 0; k < length; ++k) {
 		logDebugging(logger, "Argument %d: \"%s\"", k, arguments[k]);
 	}
 	CompilerState compilerState = {
-		.abstractSyntaxtTree = NULL,
-		.value = 0
+		.abstractSyntaxtTree = NULL
 	};
 	ModuleDestructor moduleDestructors[] = {
 		initializeAbstractSyntaxTreeModule(),
 		initializeFlexActionsModule(lexicalAnalyzer),
 		initializeBisonActionsModule(&compilerState),
 		initializeFrontendModule(lexicalAnalyzer),
-		initializeCalculatorModule(),
 		initializeGeneratorModule()
 	};
 	CompilationStatus compilationStatus = executeSyntacticAnalysis();
 	Program * program = compilerState.abstractSyntaxtTree;
 	if (compilationStatus == SUCCEEDED) {
-		// ----------------------------------------------------------------------------------------
-		// Beginning of the Backend... ------------------------------------------------------------
-		logDebugging(logger, "Computing expression value...");
-		ComputationResult computationResult = executeCalculator(&compilerState);
-		if (computationResult.succeeded) {
-			compilerState.value = computationResult.value;
-			executeGenerator(&compilerState);
-		}
-		else {
-			logError(logger, "The computation phase rejects the input program.");
-			compilationStatus = FAILED;
-		}
-		// ...end of the Backend. -----------------------------------------------------------------
-		// ----------------------------------------------------------------------------------------
-	}
-	else {
-		logError(logger, "The syntactic-analysis phase rejects the input program.");
-		compilationStatus = FAILED;
+        if (validateJuliaProgram(program)) {
+            if (!executeGenerator(&compilerState)) {
+                compilationStatus = FAILED;
+            }
+        } else {
+            logError(logger, "Semantic analysis failed.");
+            compilationStatus = FAILED;
+        }
+	} else {
+        logError(logger, "Syntactic analysis failed.");
+        compilationStatus = FAILED;
 	}
 	logDebugging(logger, "Releasing AST resources...");
 	destroyProgram(program);

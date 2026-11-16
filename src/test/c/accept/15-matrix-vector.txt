@@ -1,0 +1,4 @@
+matrix A[2,3]>=0
+vector x[3]>=0
+min sum(A*x)
+print(x)
